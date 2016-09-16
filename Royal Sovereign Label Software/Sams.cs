@@ -15,8 +15,8 @@ namespace Royal_Sovereign_Label_Software
     {
         protected bool isFormClosing = false;
         private const int WM_CLOSE = 16;
-        private OleDbDataReader reader;
-        private OleDbConnection con;
+        //private OleDbDataReader reader;
+        //private OleDbConnection con;
 
         public Sams()
         {
@@ -141,9 +141,9 @@ namespace Royal_Sovereign_Label_Software
 
             //MessageBox to confirm printing
             if (textBox2.Text == "")
-                dr = MessageBox.Show("Are you sure to print labels for " + startingSO + "?", "McLane", MessageBoxButtons.YesNo);
+                dr = MessageBox.Show("Are you sure to print labels for " + startingSO + "?", "Sams", MessageBoxButtons.YesNo);
             else
-                dr = MessageBox.Show("Are you sure to print labels between " + startingSO + " and " + endingSO + "?", "McLane", MessageBoxButtons.YesNo);
+                dr = MessageBox.Show("Are you sure to print labels between " + startingSO + " and " + endingSO + "?", "Sams", MessageBoxButtons.YesNo);
 
             //If user selected No in MessageBox, halt
             if (dr == DialogResult.No)

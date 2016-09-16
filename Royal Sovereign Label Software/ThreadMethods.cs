@@ -15,7 +15,6 @@ namespace Royal_Sovereign_Label_Software
 
         public ThreadMethods()
         {
-
         }
 
         private void getData(string sql)
@@ -198,6 +197,173 @@ namespace Royal_Sovereign_Label_Software
                     con.Close();
                     Console.WriteLine(output);
                     System.IO.File.WriteAllText(@"//10.0.0.10/Public/IT/Label_Printing/bartender_edi/SamsCartonLabel.csv", output);
+                }
+            }
+            catch (InvalidOperationException)
+            {
+                MessageBox.Show("No Matching Sales Order Number");
+            }
+        }
+
+        private string buildMcLaneString(string startNo, string endNo)
+        {
+            return "SELECT soh.SalesOrderNo, soh.ShipToName, soh.ShipToAddress1, " +
+                "CASE WHEN soh.ShipToAddress2 is null THEN '' ELSE soh.ShipToAddress2 END as 'ShipToAddress2', " +
+                "soh.ShipToCity, soh.ShipToState, soh.ShipToZipCode, " +
+                "soh.ShipVia, soh.CustomerPONo, sod.UDF_SKU, sod.ItemCodeDesc, sod.ItemCode, " +
+                "sod.QuantityOrdered, CASE WHEN cii.UDF_MASTER_CTN_QTY=0 THEN 1 ELSE cii.UDF_MASTER_CTN_QTY END as 'UDF_MASTER_CTN_QTY', " +
+                "CASE WHEN cii.UDF_MASTER_CTN_QTY = 0 THEN sod.QuantityOrdered ELSE CASE WHEN sod.QuantityOrdered<cii.UDF_MASTER_CTN_QTY THEN sod.QuantityOrdered ELSE sod.QuantityOrdered/cii.UDF_MASTER_CTN_QTY END END as 'TotalCartonQty', " +
+                "soh.WarehouseCode " +
+                "FROM (RSI3...SO_SalesOrderHeader soh INNER JOIN RSI3...SO_SalesOrderDetail sod ON soh.SalesOrderNo = sod.SalesOrderNo)" +
+                "INNER JOIN RSI3...CI_Item cii ON sod.ItemCode = cii.ItemCode " +
+                "WHERE sod.ItemCode Not Like '/%' AND soh.CustomerNo='MCLANE' AND soh.SalesOrderNo>='" + startNo + "' AND soh.SalesOrderNo<='" + endNo + "'";
+        }
+        private string buildMcLaneString(string startNo)
+        {
+            return "SELECT soh.SalesOrderNo, soh.ShipToName, soh.ShipToAddress1, " +
+                "CASE WHEN soh.ShipToAddress2 is null THEN '' ELSE soh.ShipToAddress2 END as 'ShipToAddress2', " +
+                "soh.ShipToCity, soh.ShipToState, soh.ShipToZipCode, " +
+                "soh.ShipVia, soh.CustomerPONo, sod.UDF_SKU, sod.ItemCodeDesc, sod.ItemCode, " +
+                "sod.QuantityOrdered, CASE WHEN cii.UDF_MASTER_CTN_QTY=0 THEN 1 ELSE cii.UDF_MASTER_CTN_QTY END as 'UDF_MASTER_CTN_QTY', " +
+                "CASE WHEN cii.UDF_MASTER_CTN_QTY = 0 THEN sod.QuantityOrdered ELSE CASE WHEN sod.QuantityOrdered<cii.UDF_MASTER_CTN_QTY THEN sod.QuantityOrdered ELSE sod.QuantityOrdered/cii.UDF_MASTER_CTN_QTY END END as 'TotalCartonQty', " +
+                "soh.WarehouseCode " +
+                "FROM (RSI3...SO_SalesOrderHeader soh INNER JOIN RSI3...SO_SalesOrderDetail sod ON soh.SalesOrderNo = sod.SalesOrderNo)" +
+                "INNER JOIN RSI3...CI_Item cii ON sod.ItemCode = cii.ItemCode " +
+                "WHERE sod.ItemCode Not Like '/%' AND soh.CustomerNo='MCLANE' AND soh.SalesOrderNo='" + startNo + "'";
+        }
+
+        public void PrintMcLaneCartonLabel(object so)
+        {
+            int cartonCount;
+            string output = "";
+            string[] array = (string[])so;
+            try
+            {
+                if (array[1] != "0000000")
+                {
+
+
+                    getData(buildMcLaneString(array[0], array[1]));
+                    // Data is accessible through the DataReader object here.
+
+                    for (int i = 0; i < reader.FieldCount; i++)
+                    {
+                        output += reader.GetName(i) + "|";
+                    }
+                    output += "carton#|Type|\n";
+
+                    while (reader.Read())
+                    {
+                        cartonCount = 1;
+                        while (cartonCount <= reader.GetDecimal(13))
+                        {
+                            for (int i = 0; i < reader.FieldCount; i++)
+                            {
+                                output += reader.GetValue(i).ToString() + "|";
+                            }
+                            output += cartonCount + "|C|\n";
+                            cartonCount++;
+                        }
+                    }
+                    Console.WriteLine(output);
+                    System.IO.File.WriteAllText(@"//10.0.0.10/Public/IT/Label_Printing/bartender_edi/McLaneCartonLabel.csv", output);
+                }
+                else
+                {
+                    getData(buildMcLaneString(array[0]));
+                    // Data is accessible through the DataReader object here.
+
+                    for (int i = 0; i < reader.FieldCount; i++)
+                    {
+                        output += reader.GetName(i) + "|";
+                    }
+                    output += "carton#|Type|\n";
+
+                    while (reader.Read())
+                    {
+                        cartonCount = 1;
+                        while (cartonCount <= reader.GetDecimal(13))
+                        {
+                            for (int i = 0; i < reader.FieldCount; i++)
+                            {
+                                output += reader.GetValue(i).ToString() + "|";
+                            }
+                            output += cartonCount + "|C|\n";
+                            cartonCount++;
+                        }
+                    }
+                    con.Close();
+                    Console.WriteLine(output);
+                    System.IO.File.WriteAllText(@"//10.0.0.10/Public/IT/Label_Printing/bartender_edi/McLaneCartonLabel.csv", output);
+                }
+            }
+            catch (InvalidOperationException)
+            {
+                MessageBox.Show("No Matching Sales Order Number");
+            }
+        }
+
+        public void PrintMcLanePalletLabel(object so)
+        {
+            int cartonCount;
+            string output = "";
+            string[] array = (string[])so;
+            try
+            {
+                if (array[1] != "0000000")
+                {
+
+
+                    getData(buildMcLaneString(array[0], array[1]));
+                    // Data is accessible through the DataReader object here.
+
+                    for (int i = 0; i < reader.FieldCount; i++)
+                    {
+                        output += reader.GetName(i) + "|";
+                    }
+                    output += "carton#|Type|\n";
+
+                    while (reader.Read())
+                    {
+                        cartonCount = 1;
+                        for (int i = 0; i < reader.FieldCount; i++)
+                        {
+                            if (i == 13)
+                                output += "1.0000000000|";
+                            else
+                                output += reader.GetValue(i).ToString() + "|";
+                        }
+                        output += cartonCount + "|P|\n";
+                    }
+                    Console.WriteLine(output);
+                    System.IO.File.WriteAllText(@"//10.0.0.10/Public/IT/Label_Printing/bartender_edi/McLaneCartonLabel.csv", output);
+                }
+                else
+                {
+                    getData(buildMcLaneString(array[0]));
+                    // Data is accessible through the DataReader object here.
+
+                    for (int i = 0; i < reader.FieldCount; i++)
+                    {
+                        output += reader.GetName(i) + "|";
+                    }
+                    output += "carton#|Type|\n";
+
+                    while (reader.Read())
+                    {
+                        cartonCount = 1;
+                        for (int i = 0; i < reader.FieldCount; i++)
+                        {
+                            if (i == 13)
+                                output += "1.0000000000|";
+                            else
+                                output += reader.GetValue(i).ToString() + "|";
+                        }
+                        output += cartonCount + "|P|\n";
+                    }
+                    con.Close();
+                    Console.WriteLine(output);
+                    System.IO.File.WriteAllText(@"//10.0.0.10/Public/IT/Label_Printing/bartender_edi/McLaneCartonLabel.csv", output);
                 }
             }
             catch (InvalidOperationException)
