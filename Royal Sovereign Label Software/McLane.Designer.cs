@@ -50,7 +50,6 @@
             this.radioButton1.TabStop = true;
             this.radioButton1.Text = "Carton";
             this.radioButton1.UseVisualStyleBackColor = true;
-            this.radioButton1.CheckedChanged += new System.EventHandler(this.rb1_CheckedChanged);
             // 
             // groupBox1
             // 
@@ -73,7 +72,6 @@
             this.radioButton2.TabStop = true;
             this.radioButton2.Text = "Pallet";
             this.radioButton2.UseVisualStyleBackColor = true;
-            this.radioButton2.CheckedChanged += new System.EventHandler(this.rb2_CheckedChanged);
             // 
             // textBox2
             // 
